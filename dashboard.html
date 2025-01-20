@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"> 
+</head>
+<body style="background-color: #f4f4f4; font-family: 'Roboto', sans-serif;"> 
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand">ATTENDANCE SYSTEM</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html">Mark Attendance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="student_management.html">Manage Students</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="attendance_report.html">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="divisionSelect">Select Division</label>
+                <select class="form-select" id="divisionSelect">
+                    <option value="">Select Division</option>
+                    <option value="1">Division A</option>
+                    <option value="2">Division B</option>
+                </select>                
+            </div>
+            <div class="col-md-4">
+                <label for="dateSelect">Select Date</label>
+                <input type="text" class="form-control" id="dateSelect" placeholder="Select Date">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Mark Attendance</h5>
+            </div>
+            <div class="card-body">
+                <form id="attendanceForm">
+                    <table class="table" id="attendanceTable">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Student Name</th>
+                                <th>Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically populated rows -->
+                        </tbody>
+                    </table>
+                    <button type="submit" class="btn btn-primary" id="saveAttendanceBtn" disabled>Save Attendance</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+
+    <script>
+// Fetch students based on the selected division
+function fetchStudents(division) {
+    const token = localStorage.getItem('token'); // Get the token from local storage
+
+    $.ajax({
+        url: '/api/students',  // Your API endpoint
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}` // Include the token in the request
+        },
+        data: { division },  // Send division as a query parameter (division_id)
+        success: function(response) {
+            populateTable(response.students);  // Populate the table with student data
+        },
+        error: function(xhr) {
+            alert('Failed to fetch students: ' + (xhr.responseJSON ? xhr.responseJSON.error : 'Unknown error'));
+        }
+    });
+}
+
+// Handle division selection change
+document.getElementById('divisionSelect').addEventListener('change', function() {
+    const division = this.value;
+    if (division) {
+        fetchStudents(division);  // Fetch students when division is selected
+    }
+});
+
+
+// Populate the table with student data
+function populateTable(students) {
+    const tbody = document.getElementById('attendanceTable').getElementsByTagName('tbody')[0];
+    tbody.innerHTML = '';  // Clear any existing rows
+
+    students.forEach(student => {
+        const row = tbody.insertRow();
+        const rollNoCell = row.insertCell(0);
+        const nameCell = row.insertCell(1);
+        const attendanceCell = row.insertCell(2);
+
+        rollNoCell.textContent = student.roll_no;
+        nameCell.textContent = student.name;
+        
+        // Add a dropdown or radio buttons for attendance options
+        const attendanceDropdown = document.createElement('select');
+        attendanceDropdown.innerHTML = `
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+        `;
+        attendanceCell.appendChild(attendanceDropdown);
+    });
+
+    // Enable the "Save Attendance" button
+    document.getElementById('saveAttendanceBtn').disabled = false;
+}
+
+// Handle division selection change
+document.getElementById('divisionSelect').addEventListener('change', function() {
+    const division = this.value;
+    if (division) {
+        fetchStudents(division);  // Fetch students when division is selected
+    }
+});
+
+    </script>
+</body>
+</html>

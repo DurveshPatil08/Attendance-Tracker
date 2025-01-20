@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"> 
+</head>
+<body style="background-color: #f4f4f4; font-family: 'Roboto', sans-serif;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand">ATTENDANCE SYSTEM</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Mark Attendance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="student_management.html">Manage Students</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="attendance_report.html">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Add New Student</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addStudentForm">
+                            <div class="mb-3">
+                                <label for="rollNo" class="form-label">Roll No</label>
+                                <input type="text" class="form-control" id="rollNo" placeholder="Enter Roll No" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="studentName" class="form-label">Student Name</label>
+                                <input type="text" class="form-control" id="studentName" placeholder="Enter Student Name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Student</button>
+                        </form>                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Student List</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table" id="studentListTable">
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Name</th>
+                                    <th>Division</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+document.getElementById("addStudentForm").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const rollNo = document.getElementById('rollNo').value;
+    const studentName = document.getElementById('studentName').value;
+
+    // Validate input
+    if (!rollNo || !studentName) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    const token = localStorage.getItem('token'); // Get the token from local storage
+
+    fetch('http://localhost:3000/api/students', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Include the token in the request
+        },
+        body: JSON.stringify({ roll_no: rollNo, name: studentName })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error adding student: ' + response.statusText);
+        return response.json();
+    })
+    .then(data => {
+        alert("Student added successfully!");
+        document.getElementById("addStudentForm").reset(); // Reset the form
+        fetchStudents(); // Optionally refresh the student list
+    })
+    .catch(error => alert(error.message));
+});
+
+    </script> 
+</body>
+</html>
